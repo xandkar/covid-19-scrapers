@@ -16,6 +16,8 @@ VALID_LOCATIONS='
     Monroe
     Montgomery
     Nassau
+    New York City:
+    New York State (Outside of NYC)
     Orange
     Putnam
     Rockland
@@ -24,11 +26,9 @@ VALID_LOCATIONS='
     Suffolk
     Tioga
     Tompkins
+    Total Positive Cases (Statewide)
     Ulster
     Westchester
-    New York State (Outside of NYC)
-    New York City:
-    Total Positive Cases (Statewide)
     '
 DEFAULT_LOCATION='New York City:'
 
