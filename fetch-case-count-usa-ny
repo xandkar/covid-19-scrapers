@@ -50,6 +50,10 @@ esac
 curl 'https://health.ny.gov/diseases/communicable/coronavirus/' \
 | hxpipe \
 | awk -v location="$location" '
+    BEGIN {
+        target_path = "/html/body/div/div/div/div/div/div/table/tr/td"
+    }
+
     /^[\(\)]/ {
         update_node()
         next
@@ -64,12 +68,12 @@ curl 'https://health.ny.gov/diseases/communicable/coronavirus/' \
         XmlPayload = substr($0, 2, length($0))
     }
 
-    XmlPath == "/html/body/div/div/div/div/div/div/table/tr/td" && XmlPayload == location {
+    XmlPath == target_path && XmlPayload == location {
         found = 1;
         next
     }
 
-    XmlPath == "/html/body/div/div/div/div/div/div/table/tr/td" && found {
+    XmlPath == target_path && found {
         print XmlPayload;
         found = 0;
         next;
