@@ -5,6 +5,21 @@
 #     - awk
 #     - hxpipe (packaged in html-xml-utils on Debian and Ubuntu)
 
+# 2020-03-16 morning-afternoon
+#URI='https://health.ny.gov/diseases/communicable/coronavirus/'
+#TARGET_PATH='/html/body/div/div/div/div/div/div/table/tr/td'
+#DEFAULT_LOCATION='New York City:'
+
+# 2020-03-16 late evening 22:30
+#URI='https://health.ny.gov/diseases/communicable/coronavirus/'
+#TARGET_PATH='/html/body/div/div/div/div/div/div/tr/td'
+#DEFAULT_LOCATION='New York City:'
+
+# 2020-03-17 late afternoon 16:35
+URI='https://coronavirus.health.ny.gov/county-county-breakdown-positive-cases'
+TARGET_PATH='/html/body/div/div/main/div/div/div/div/div/div/div/div/table/tbody/tr/td'
+DEFAULT_LOCATION='New York City'
+
 VALID_LOCATIONS='
     Albany
     Allegany
@@ -37,7 +52,6 @@ VALID_LOCATIONS='
     Westchester
     Wyoming
     '
-DEFAULT_LOCATION='New York City'
 
 usage() {
         printf "Usage: %s [LOCATION]\n" "$0"
@@ -54,26 +68,12 @@ case "$1" in
      *  ) location="$1";;
 esac
 
-# 2020-03-16
-#URI='https://health.ny.gov/diseases/communicable/coronavirus/'
-
-# 2020-03-17
-URI='https://coronavirus.health.ny.gov/county-county-breakdown-positive-cases'
-
 curl "$URI" \
 | hxpipe \
-| awk -v location="$location" '
-    BEGIN {
-        # 2020-03-16 morning-afternoon
-        #target_path = "/html/body/div/div/div/div/div/div/table/tr/td"
-
-        # 2020-03-16 late evening 22:30
-        #target_path = "/html/body/div/div/div/div/div/div/tr/td"
-
-        # 2020-03-17 late afternoon 16:35
-        target_path = "/html/body/div/div/main/div/div/div/div/div/div/div/div/table/tbody/tr/td"
-    }
-
+| awk \
+    -v location="$location" \
+    -v target_path="$TARGET_PATH" \
+    '
     /^[\(\)]/ {
         update_node()
         next
