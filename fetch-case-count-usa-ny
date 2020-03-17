@@ -34,7 +34,6 @@ VALID_LOCATIONS='
     Montgomery
     Nassau
     New York City
-    New York State (Outside of NYC)
     Onondaga
     Ontario
     Orange
@@ -47,15 +46,15 @@ VALID_LOCATIONS='
     Sullivan
     Tioga
     Tompkins
-    Total Positive Cases (Statewide)
     Ulster
     Westchester
     Wyoming
     '
 
 usage() {
-        printf "Usage: %s [LOCATION]\n" "$0"
+        printf "Usage: %s [OPTION | LOCATION]\n" "$0"
         printf '\n'
+        printf 'OPTION = -h | --all \n'
         printf 'LOCATION ='
         printf '%s\n' "$VALID_LOCATIONS"
         printf "Default LOCATION:\n    %s\n" "$DEFAULT_LOCATION"
@@ -64,15 +63,17 @@ usage() {
 
 case "$1" in
     '-h') usage;;
-    ''  ) location="$DEFAULT_LOCATION";;
-     *  ) location="$1";;
+    '--all') opt_all=1;;
+    ''  ) target_location="$DEFAULT_LOCATION";;
+     *  ) target_location="$1";;
 esac
 
 curl "$URI" \
 | hxpipe \
 | awk \
-    -v location="$location" \
+    -v target_location="$target_location" \
     -v target_path="$TARGET_PATH" \
+    -v opt_all="$opt_all" \
     '
     /^[\(\)]/ {
         update_node()
@@ -88,15 +89,24 @@ curl "$URI" \
         XmlPayload = substr($0, 2, length($0))
     }
 
-    XmlPath == target_path && XmlPayload == location {
-        found = 1;
+    XmlPath == target_path && !location {
+        location = XmlPayload;
         next
     }
 
-    XmlPath == target_path && found {
-        print XmlPayload;
-        found = 0;
+    XmlPath == target_path && location {
+        case_counts[location] = XmlPayload;
+        location = "";
         next;
+    }
+
+    END {
+        if (opt_all) {
+            for (location in case_counts)
+                printf("%d|%s\n", case_counts[location], location)
+        } else {
+                printf("%d\n", case_counts[target_location])
+        }
     }
 
     function path_to_string(path, depth,    p, i) {
@@ -142,4 +152,6 @@ curl "$URI" \
         sub("^" $1 s $2 s, "", val)
         _hxpipe_curr_attrs[key] = val
     }
-    '
+    ' \
+| column -ts\| \
+| sort -n -k 1
