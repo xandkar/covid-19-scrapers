@@ -51,7 +51,11 @@ curl 'https://health.ny.gov/diseases/communicable/coronavirus/' \
 | hxpipe \
 | awk -v location="$location" '
     BEGIN {
-        target_path = "/html/body/div/div/div/div/div/div/table/tr/td"
+        # 2020-03-16 morning-afternoon
+        #target_path = "/html/body/div/div/div/div/div/div/table/tr/td"
+
+        # 2020-03-16 late evening 22:30
+        target_path = "/html/body/div/div/div/div/div/div/tr/td"
     }
 
     /^[\(\)]/ {
